@@ -1,12 +1,29 @@
 import {client} from 'client'
+import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
 
 export default function MyPage() {
+    const router = useRouter()
+    const [ shouldRedirect, setShouldRedirect ] = useState(false)
     const { isLoading: isAuthLoading, isAuthenticated } = client.auth.useAuth({
-        shouldRedirect: true,
+        shouldRedirect,
     })
+
+    useEffect(() => {
+        if( isAuthenticated && shouldRedirect ) {
+            setShouldRedirect(false);
+        }
+        if( !isAuthenticated ) {
+            setShouldRedirect(true);
+        }
+    }, [shouldRedirect, isAuthenticated])
 
     const { isLoggedOut, logout } = client.auth.useLogout()
 
+    const customLogout = () => {
+        logout();
+        router.push(process.env.NEXT_PUBLIC_WORDPRESS_URL + '/wp-login.php?action=logout')
+    }
 
     /**
      * Not authenticated
@@ -18,7 +35,7 @@ export default function MyPage() {
     return (
         <div>
             <p>My auth content</p>
-            <a href="#" onClick={() => logout()}>Log out</a>
+            <a href="#" onClick={() => customLogout()}>Log out</a>
         </div>
     )
 }
