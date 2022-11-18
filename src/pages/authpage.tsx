@@ -1,11 +1,11 @@
-import {client} from 'client'
+import { client } from 'client'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 
 export default function MyPage() {
     const router = useRouter()
     const [ shouldRedirect, setShouldRedirect ] = useState(false)
-    const { isLoading: isAuthLoading, isAuthenticated } = client.auth.useAuth({
+    const { isAuthenticated } = client.auth.useAuth({
         shouldRedirect,
     })
 
@@ -21,8 +21,9 @@ export default function MyPage() {
     const { isLoggedOut, logout } = client.auth.useLogout()
 
     const customLogout = () => {
-        logout();
-        router.push(process.env.NEXT_PUBLIC_WORDPRESS_URL + '/wp-login.php?action=logout')
+        logout().then((res) => {
+            router.push(process.env.NEXT_PUBLIC_WORDPRESS_URL + '/wp-login.php?action=logout')
+        })
     }
 
     /**
